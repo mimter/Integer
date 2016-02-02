@@ -3,8 +3,8 @@
 #include<time.h>
 #include<math.h>
 #include<limits.h>
-#define KETA 8
-#define CUL 5
+#define KETA 300
+#define CUL 3   //ループの回数 10^CUL回
 
 struct NUMBER
 {
@@ -39,7 +39,8 @@ int power();
 int isPrime();
 double logy();
 void naturallog();
-void mulByN();
+void naturallog2();
+int mulByN();
 int gcd();
 
 void A();
@@ -55,24 +56,24 @@ int main(void)
 	int i,flag;
 	double ln =2;
 
+	clearByZero(&a);
+	clearByZero(&b);
+	clearByZero(&c);
+	clearByZero(&d);
 
-	//divideのテスト
-	setInt(&a,-13405);
-	setInt(&b,-11);
-	divide(&a,&b,&c,&d);
-	printf("div = ");
+	
+
+	/*setInt(&a,678);
+	setInt(&b,39);
+	quickdiv(&a,&b,&c,&d);
+	printf("divide = ");
 	dispNumber(&c);
 	printf("...");
 	dispNumber(&d);
-	printf("\n");
+	putchar('\n');
+	*/
+	
 
-	//powerのテスト
-	setInt(&a,8);
-	setInt(&b,3);
-	power(&a,&b,&c);
-	printf("pow = ");
-	dispNumber(&c);
-	printf("\n");
 
 	/*clearByZero(&a);
 	clearByZero(&b);
@@ -84,10 +85,11 @@ int main(void)
 	putchar('\n'); 
 	*/
 	
-	naturallog(&a,&b);
+	naturallog2(&a,&b);
 	printf("ln2 = ");
 	dispNumber(&b);
 	putchar('\n');
+	
 
 
 /*
@@ -637,19 +639,24 @@ int divide(struct NUMBER *a,struct NUMBER *b,
 
 int power(struct NUMBER *a,struct NUMBER *b,struct NUMBER *c)
 {
-	int i=1,l=0;
-	struct NUMBER j;
-	getInt(b,&l);
+	int i=0,l=0;
+	struct NUMBER j,k,flag,tmp;
+	clearByZero(&k);
+	clearByZero(&flag);
 	clearByZero(c);
 	clearByZero(&j);
-	copyNumber(a,&j);
+	clearByZero(&tmp);
+
+	copyNumber(b,&flag);
+	setInt(&j,1);
 	while(1)
 	{
-		if(i>=l)  
+		if(numComp(&flag,&k) <= 0)  
 			break;
 		multiple(&j,a,c);
 		copyNumber(c,&j);
-		i++;
+		increment(&k,&tmp);
+		copyNumber(&tmp,&k);
 	}
 
 	return 0;
@@ -809,6 +816,199 @@ void naturallog(struct NUMBER *a,struct NUMBER *b)
 	copyNumber(&ans,b);
 
 }
+
+void naturallog2(struct NUMBER *a,struct NUMBER *b)
+{
+	struct NUMBER d,e,f,g,flag,two,count,tmp,ans,one;
+	clearByZero(b);
+	clearByZero(&d);
+	clearByZero(&e);
+	clearByZero(&f);
+	clearByZero(&g);
+	clearByZero(&two);
+	clearByZero(&flag);
+	clearByZero(&count);
+	clearByZero(&tmp);
+	clearByZero(&ans);
+	clearByZero(&one);
+	flag.n[CUL-1] = 1;
+	one.n[1] = 1;
+	setInt(&two,2);
+
+
+
+	while(1)
+	{
+		increment(&count,&tmp);
+		copyNumber(&tmp,&count);
+
+		if(numComp(&flag,&count)<=0)
+			break;
+		power(&two,&count,&d);
+
+		multiple(&d,&count,&e);
+
+		quickdiv(&one,&e,&f,&g);
+		printf("1/(n * 2^n) = ");
+		dispNumber(&f);
+		putchar('\n');
+
+		add(&ans,&f,&g);
+		copyNumber(&g,&ans);
+		printf("ln2 = ");
+		dispNumber(&ans);
+		putchar('\n');
+		putchar('\n');
+	}
+
+	copyNumber(&ans,b);
+}
+
+int quickdiv(struct  NUMBER *a,struct NUMBER *b,
+				struct NUMBER *c,struct NUMBER *d)
+{
+	int i,count,pos1=0,pos2=0;
+	struct NUMBER temp,a2,b2;
+	clearByZero(&temp);
+	clearByZero(c);
+	clearByZero(d);
+	clearByZero(&a2);
+	clearByZero(&b2);
+
+	copyNumber(a,&a2);
+	copyNumber(b,&b2);
+
+	if(isZero(b) == 0)
+		return -1;
+
+	for(i=KETA-1;i>=0;i--) //それぞれの最上位桁を見つける
+	{
+		if(a->n[i]!=0 && pos1 ==0)
+			pos1 = i;
+		if(b->n[i]!=0 && pos2 ==0)
+			pos2 = i;
+		if(pos1 !=0 && pos2 !=0)
+			break;
+	}
+
+	
+	count = pos1-pos2;
+	mulByN(b,&b2,count);
+
+	
+
+	printf("b2 = ");
+	dispNumber(&b2);
+	putchar('\n');
+
+	for(i=0;i <= count ;i++)
+	{
+		mulBy10(c,&temp);
+		copyNumber(&temp,c);
+
+		printf("1\n");
+		while(1)
+		{
+			if(numComp(&a2,&b2) == -1)
+				break;
+			increment(c,&temp);
+			copyNumber(&temp,c);
+			sub(&a2,&b2,&temp);
+			copyNumber(&temp,&a2);
+		}
+		divBy10(&b2,&temp);
+		copyNumber(&temp,&b2);
+		printf("3\n");
+	}
+
+	copyNumber(&a2,d);
+	return 0;
+
+/*	setInt(&one,1);
+	copyNumber(a,&a2);
+
+	if(isZero(a) == 0) //分子が0の時、商は0
+		return 0;
+	if(isZero(b) == 0) //分母が0エラー
+		return -1;
+	if(numComp(&one,b) == 0) //割る数が1のとき、商はa
+	{
+		copyNumber(a,c);
+		return 0;
+	}
+
+	for(i=KETA-1;i>=0;i--) //それぞれの最上位桁を見つける
+	{
+		if(a->n[i]!=0)
+			if(pos1!=0)
+				pos1 =i;
+		if(b->n[i]!=0)
+			if(pos2!=0)
+				pos2 =i;
+		if(pos1 !=0 &&pos2 !=0)
+			break;
+	}
+
+	if(pos1<pos2)   //割られる数<割る数 のとき商0,あまりa
+	{
+		copyNumber(a,d);
+		return 0;
+	}
+
+	mulByN(b,&b2,pos1-pos2);		//桁をそろえる
+	
+	for(i=pos1-pos2;i<=0;i--)
+	{
+		if(numComp(&a2,&b2)>0)
+		{
+			copyNumber(&a2,&n);
+
+			while(1)
+			{
+				copyNumber(&n,&a2);
+				if(numComp(&a2,&b2)<0)
+					break;
+				sub(&a2,&b2,&n);
+				increment(&e,&g);
+				copyNumber(&g,&e);
+			}
+			copyNumber(&f,&a2);
+			if(numComp(&a2,b) == -1)
+				break;
+			mulByN(&e,&tmp,i);
+			add(&sum,&tmp,&e);
+			copyNumber(&e,&sum);
+		}
+		divBy10(&b2,&f);
+		copyNumber(&f,&b2);
+	}
+
+	copyNumber(&sum,c);
+	copyNumber(&a2,d);
+	return 0;
+
+	*/
+}
+
+int mulByN(struct NUMBER *a,struct NUMBER*b,int n)
+{
+	int i,flag=0;
+	clearByZero(b);
+	if(a->n[KETA-n]!=0)
+		flag=-1;
+	else
+		for(i=KETA-1;i>0;i--)
+		{
+			if(i-n >=0)
+				b->n[i]=a->n[i-n];
+			else
+				b->n[i] = 0;
+		}
+
+	return flag;
+}
+
+
 
 
 
