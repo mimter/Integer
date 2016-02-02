@@ -3,7 +3,8 @@
 #include<time.h>
 #include<math.h>
 #include<limits.h>
-#define KETA 10
+#define KETA 8
+#define CUL 5
 
 struct NUMBER
 {
@@ -30,11 +31,17 @@ void setInt(); //多倍長配列に入れる
 void getInt();
 int add(); //足すc=a+b
 int sub(); //引くc=a-b
-int simpleMultiple(); //かける
+int simpleMultiple(); //かける 
 int multiple();
 int divide();
 int increment();
 int power();
+int isPrime();
+double logy();
+void naturallog();
+void mulByN();
+int gcd();
+
 void A();
 
 
@@ -42,72 +49,16 @@ int main(void)
 {
 	srandom(time(NULL));
 
-	struct NUMBER a,b,c,d,e;
+	struct NUMBER a,b,c,d,e,f,g;
 	int r;
 	int x=0,y=0,z=0;
 	int i,flag;
-
-	//setint のテスト
-
-	setInt(&a,-12344);
-	printf("a = ");
-	dispNumber(&a);
-	printf("\n");
-
-	//setSignのテスト
-	copyNumber(&a,&b);
-	setSign(&b,1);
-	printf("b = ");
-	dispNumber(&b);
-	printf("\n");
-
-	//getSignのテスト
-
-	r=getSign(&b);
-	printf("getSign() = %d\n",r);
-
-	//numCompのテスト
-	r=numComp(&a,&b);
-	printf("numComp() = %d\n",r);
-
-	setInt(&b,-96702);
-	printf("b  =  ");
-	dispNumber(&b);
-	printf("\n");
-
-	//addのテストプログラム
-	add(&b,&a,&c);
-	printf("add = ");
-	dispNumber(&c);
-	printf("\n");
-
-	//subのテストプログラム
-	sub(&c,&a,&d);
-	printf("sub = ");
-	dispNumber(&d);
-	printf("\n");
-
-	setInt(&a,12345);
-	setInt(&b,67894);
-
-	printf("a = ");
-	dispNumber(&a);
-	printf("\n");
-
-	printf("b = ");
-	dispNumber(&b);
-	printf("\n");
-
-	//multipleのテスト
-	multiple(&b,&a,&d);
-	printf("mul = ");
-	dispNumber(&d);
-	printf("\n");
+	double ln =2;
 
 
 	//divideのテスト
-	setInt(&a,8000);
-	setInt(&b,27);
+	setInt(&a,-13405);
+	setInt(&b,-11);
 	divide(&a,&b,&c,&d);
 	printf("div = ");
 	dispNumber(&c);
@@ -122,6 +73,52 @@ int main(void)
 	printf("pow = ");
 	dispNumber(&c);
 	printf("\n");
+
+	/*clearByZero(&a);
+	clearByZero(&b);
+	setInt(&a,1188);
+	setInt(&b,8978);
+	gcd(&a,&b,&c);
+	printf("gcd = ");
+	dispNumber(&c);
+	putchar('\n'); 
+	*/
+	
+	naturallog(&a,&b);
+	printf("ln2 = ");
+	dispNumber(&b);
+	putchar('\n');
+
+
+/*
+	while(1)
+	{
+		if(numComp(&b,&c) >=0)
+			break;
+		power(&e,&b,&f);
+		divide(&c,&b,&d,&g);
+		divide(&d,&f,&d,&g);
+		add(&a,&d,&a);
+		increment(&b);
+	}
+
+	printf("ln2 = ");
+	dispNumber(&a);
+	printf("\n");
+
+
+	/*setInt(&a,83);
+	printf("isPrime ");
+	dispNumber(&a); 
+	
+	printf(" = %d\n",isPrime(&a));    */
+
+
+	ln = logy(ln);
+	printf("ln2 = %.10f",ln);
+	putchar('\n');
+
+
 
 
 	putchar('\n');
@@ -234,6 +231,8 @@ int mulBy10(struct NUMBER *a,struct NUMBER*b)
 
 	return flag;
 }
+
+
 
 int divBy10(struct NUMBER *a,struct NUMBER *b)
 {
@@ -535,46 +534,103 @@ int multiple(struct NUMBER *a,struct NUMBER *b,struct NUMBER *c)
 int increment(struct NUMBER *a,struct NUMBER *b)
 {
 	int i;
+	struct NUMBER one;
 	clearByZero(b);
-	copyNumber(a,b);
-	b->n[0]++;
-	for(i=0;i<KETA;i++)
-	{
-		if(i==KETA-1||b->n[i]>=10)
-			return -1;
+	clearByZero(&one);
+	setInt(&one,1);
+	i=add(a,&one,b);
 
-		if(b->n[i]>=10){
-			b->n[i+1]++;
-			b->n[i]-=10;
-		}
-		else
-			break;
+	return i;
+	
+}
 
-	}
-	return 0;
+int decrement(struct NUMBER *a,struct NUMBER *b)
+{
+	int i;
+	struct NUMBER one;
+	clearByZero(b);
+	clearByZero(&one);
+	setInt(&one,1);
+	i=sub(a,&one,b);
+
+	return i;
+	
 }
 
 int divide(struct NUMBER *a,struct NUMBER *b,
 			struct NUMBER *c,struct NUMBER *d)
 {
-	int i;
-	struct NUMBER n,k;
+	int i,flag=1;
+	struct NUMBER n,k,v,one;
 	clearByZero(c);
 	clearByZero(d);
+	clearByZero(&one);
+	setInt(&one,1);
+	if(numComp(&one,b) == 0)
+	{
+		copyNumber(a,c);
+		clearByZero(d);
+		return 0;
+	}
 	if(isZero(b)==0)
 		return -1;
-	copyNumber(a,&n);
+	getAbs(a,&n);
+	getAbs(b,&v);
+
+
+
+	if(getSign(a) == -1)
+	{
+		if(getSign(b)==1)
+		{
+			flag = -1;
+		}
+	}
+
+	if(getSign(b) == -1)
+	{
+		if(getSign(a) == 1)
+		{
+			flag = -1;
+		}
+	}
+
+	if(getSign(a) == -1)
+	{
+		if(getSign(b)== -1)
+		{
+			flag = 0;
+		}
+	}
+
+
 
 	while(1)
 	{
-		if(numComp(&n,b)==-1)
+		if(numComp(&n,&v)<=0)
 			break;
 		copyNumber(&n,&k);
-		sub(&k,b,&n);
+		sub(&k,&v,&n);
 		increment(c,&k);
 		copyNumber(&k,c);
 	}
 	copyNumber(&n,d);
+
+	if(flag == 1)
+	{
+		setSign(c,1);
+		setSign(d,1);	
+	}
+	else if(flag == -1)
+	{
+		setSign(c,-1);
+		setSign(d,-1);	
+	}
+	else if(flag == 0)
+	{
+		setSign(c,1);
+		setSign(d,-1);
+	}
 	return 0;
 }
 
@@ -599,3 +655,199 @@ int power(struct NUMBER *a,struct NUMBER *b,struct NUMBER *c)
 	return 0;
 
 }
+
+int isPrime(struct NUMBER *a)
+{
+	struct NUMBER b,c,d,e;
+	int i=1,flag = 0 ;
+	clearByZero(&b);
+	clearByZero(&c);
+	clearByZero(&d);
+	while(1)
+	{
+		i++;
+		setInt(&b,i);
+		//if()
+		if(numComp(a,&b)==-1)
+		{
+			flag =1;
+			break;
+		}
+
+		divide(a,&b,&c,&d);
+		if(isZero(&d)==1)
+			break;
+
+	}
+
+	return flag;
+}
+
+
+double logy(double y)
+{
+	int i;
+	double b=0.0;
+	int n = 5;
+	double x=(y-1)/(y+1);
+	printf("%.4f\n",x);
+	for(i=0;i<n;i++)
+	{
+		b = b + ( 2*pow(x,2*i+1)/(2*i+1) );
+	}
+	return b;
+}
+
+
+/*
+void naturallog(struct NUMBER *a,struct NUMBER *b)
+{
+	int i;
+	struct NUMBER count,d,e,f,g,x,y1,y2,two,temp;
+	clearByZero(&count);
+	clearByZero(&d);
+	clearByZero(&e);
+	clearByZero(&f);
+	clearByZero(&g);
+	clearByZero(&x);
+	clearByZero(&y1);
+	clearByZero(&y2);
+	clearByZero(&two);
+	clearByZero(&x);
+	clearByZero(&temp);
+
+	setInt(&two,2);
+
+	y1.n[CUL-2] = 1;
+	printf("y1 = ");
+	dispNumber(&y1);
+	putchar('\n');
+
+	increment(&two,&y2);
+	printf("y2 = ");
+	dispNumber(&y2);
+	putchar('\n');
+
+	divide(&y1,&y2,&x,&d);
+
+	printf("x = ");
+	dispNumber(&x);
+	putchar('\n');
+
+	while(1)
+	{
+		if(count.n[CUL-1]!=0) break;
+		multiple(&count,&two,&d);
+
+		increment(&d,&e);
+
+		power(&x,&e,&d);
+
+		multiple(&d,&two,&f);
+		divide(&e,&f,&g,&d);
+
+		add(b,&g,b);
+		increment(&count,&temp);
+		copyNumber(&temp,&count);
+
+
+	} 
+
+}
+*/
+
+
+
+void naturallog(struct NUMBER *a,struct NUMBER *b)
+{
+	int i,sec = 0;
+	struct NUMBER count,d,e,f,g,x,y1,y2,one,temp,flag,two,ans;
+	clearByZero(&count);
+	clearByZero(&d);
+	clearByZero(&e);
+	clearByZero(&f);
+	clearByZero(&g);
+	clearByZero(&x);
+	clearByZero(&y1);
+	clearByZero(&y2);
+	clearByZero(&one);
+	clearByZero(&two);
+	clearByZero(&x);
+	clearByZero(&temp);
+	clearByZero(&flag);
+	clearByZero(&ans);
+
+	setInt(&two,2);
+
+	flag.n[KETA-1] = 1; 
+	one.n[KETA-2] = 1;
+	
+	while(1)
+	{
+		increment(&count,&temp);
+		copyNumber(&temp,&count);
+		
+
+		if(numComp(&flag,&count) < 0) 
+		{
+			printf("break\n");
+			break;
+		}
+
+		divide(&one,&count,&d,&e);
+		
+
+		if(count.n[0] % 2 == 0)
+			setSign(&d,-1);
+
+
+		add(&ans,&d,&e);
+		copyNumber(&e,&ans);
+
+	}
+
+	copyNumber(&ans,b);
+
+}
+
+
+
+/*
+int gcd(struct NUMBER *a,struct NUMBER *b,struct NUMBER *c)
+{
+	struct NUMBER d,e,f,g;
+	clearByZero(&d);
+	clearByZero(&e);
+	clearByZero(&f);
+	copyNumber(a,&g);
+	copyNumber(b,&d);
+	while(1)
+	{
+		divide(&g,&d,&e,&f);
+		printf(",g = ");
+		dispNumber(&g);
+
+		printf(",d = ");
+		dispNumber(&d);
+
+		printf(",e = ");
+		dispNumber(&e);
+		printf("    ,   f = ");
+		dispNumber(&f);
+		putchar('\n');
+		copyNumber(&d,&g);
+		copyNumber(&f,&d);
+		if(isZero(&f) == 0)
+		{
+			printf("break\n");
+			break;
+		}
+	}
+
+	copyNumber(&d,c);
+
+	return 0;
+
+}
+
+*/
