@@ -3,7 +3,7 @@
 #include<time.h>
 #include<math.h>
 #include<limits.h>
-#define KETA 300
+#define KETA 20
 #define CUL 3   //ループの回数 10^CUL回
 
 struct NUMBER
@@ -72,6 +72,7 @@ int main(void)
 	dispNumber(&d);
 	putchar('\n');
 	*/
+	
 	
 
 
@@ -831,8 +832,8 @@ void naturallog2(struct NUMBER *a,struct NUMBER *b)
 	clearByZero(&tmp);
 	clearByZero(&ans);
 	clearByZero(&one);
-	flag.n[CUL-1] = 1;
-	one.n[1] = 1;
+	flag.n[1] = 1;
+	one.n[2] = 1;
 	setInt(&two,2);
 
 
@@ -867,7 +868,7 @@ void naturallog2(struct NUMBER *a,struct NUMBER *b)
 int quickdiv(struct  NUMBER *a,struct NUMBER *b,
 				struct NUMBER *c,struct NUMBER *d)
 {
-	int i,count,pos1=0,pos2=0;
+	int i,count=0,pos1=0,pos2=0;
 	struct NUMBER temp,a2,b2;
 	clearByZero(&temp);
 	clearByZero(c);
@@ -878,24 +879,22 @@ int quickdiv(struct  NUMBER *a,struct NUMBER *b,
 	copyNumber(a,&a2);
 	copyNumber(b,&b2);
 
+	printf("a =");
+	dispNumber(a);
+	putchar('\n');
+	printf("b =");
+	dispNumber(b);
+	putchar('\n');
+
 	if(isZero(b) == 0)
 		return -1;
 
-	for(i=KETA-1;i>=0;i--) //それぞれの最上位桁を見つける
+	for(count=0;numComp(&a2,&b2) == 1;count++) //それぞれの最上位桁を見つける
 	{
-		if(a->n[i]!=0 && pos1 ==0)
-			pos1 = i;
-		if(b->n[i]!=0 && pos2 ==0)
-			pos2 = i;
-		if(pos1 !=0 && pos2 !=0)
-			break;
+		mulBy10(&b2,&temp);
+		copyNumber(&temp,&b2);
 	}
 
-	
-	count = pos1-pos2;
-	mulByN(b,&b2,count);
-
-	
 
 	printf("b2 = ");
 	dispNumber(&b2);
@@ -909,12 +908,31 @@ int quickdiv(struct  NUMBER *a,struct NUMBER *b,
 		printf("1\n");
 		while(1)
 		{
-			if(numComp(&a2,&b2) == -1)
+			if(numComp(&a2,&b2) ==-1 )
+			{
+				printf("break\n");
+				printf("c = ");
+				dispNumber(c);
+				putchar('\n');
+
+				printf("a2 = ");
+				dispNumber(&a2);
+				putchar('\n');
 				break;
+
+			}
 			increment(c,&temp);
 			copyNumber(&temp,c);
 			sub(&a2,&b2,&temp);
 			copyNumber(&temp,&a2);
+
+			printf("c = ");
+			dispNumber(c);
+			putchar('\n');
+
+			printf("a2 = ");
+			dispNumber(&a2);
+			putchar('\n');
 		}
 		divBy10(&b2,&temp);
 		copyNumber(&temp,&b2);
